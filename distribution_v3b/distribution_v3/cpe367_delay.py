@@ -82,13 +82,13 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 		fifo.update(xin)
 		# evaluate your difference equation	to yield the desired effect!
 		#  this example just copies the mono input into the left and right channel
-		if (count == 7111):
+		if (count == 5000):
 			#yout_left = fifo.get(i)
-			i+=1
+			i=i+1
 			if(i==9):
 				i=0
 			#yout_right = fifo.get(j)
-			j-=j
+			j=j-1
 			if(j==0):
 				j=8
 			count = 0	
