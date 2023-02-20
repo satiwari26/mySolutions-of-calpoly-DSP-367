@@ -36,7 +36,7 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 		return False
 		
 	# setup configuration for output WAV
-	num_channels = 2
+	num_channels = 1
 	sample_width_8_16_bits = 16
 	sample_rate_hz = 16000
 	wav_out.set_wav_out_configuration(num_channels,sample_width_8_16_bits,sample_rate_hz)
@@ -51,52 +51,30 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 	###############################################################
 	###############################################################
 	# students - allocate your fifo, with an appropriate length (M)
-	M = 9				# length 3 is not appropriate!
+	M = 2000				# length 3 is not appropriate!
 	#6757 samples to cover 4 seconds
 	fifo = my_fifo(M)
  
 	# students - allocate filter coefficients as needed, length (M)
 	# students - these are not the correct filter coefficients
+	
 	#bk_list_left = [0,1,2,3,4,5,6,7,8]
 	#bk_list_right =[8,7,6,5,4,3,2,1,0]
-	i=0
-	j=8
+
+	xin =0
+
 	###############################################################
-	###############################################################
-	count =0
+	###############################################################	
 	# process entire input signal
-	yout_left =0
-	yout_right=0
-	xin = 0
 	while xin != None:
-		count = count+1
 		# read next sample (assumes mono WAV file)
 		#  returns None when file is exhausted
 		xin = wav_in.read_wav()
-		if xin == None: break
 		
-		###############################################################
-		###############################################################
-		# students - there is work to be done here!
-		# update history with most recent input
 		fifo.update(xin)
-		# evaluate your difference equation	to yield the desired effect!
-		#  this example just copies the mono input into the left and right channel
-		if (count == 5000):
-			#yout_left = fifo.get(i)
-			i=i+1
-			if(i==9):
-				i=0
-			#yout_right = fifo.get(j)
-			j=j-1
-			if(j==0):
-				j=8
-			count = 0	
 
-		yout_left = fifo.get(i)
-		yout_right = fifo.get(j)
-
-
+		yout_left = 0.5*fifo.get(1) + 0.5*fifo.get(1998)
+		
 		
 		# students - well done!
 		###############################################################
@@ -105,10 +83,10 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 
 		# convert to signed int
 		yout_left = int(round(yout_left))
-		yout_right = int(round(yout_right))
+		#yout_right = int(round(yout_right))
 		
 		# output current sample
-		ostat = wav_out.write_wav_stereo(yout_left,yout_right)
+		ostat = wav_out.write_wav(yout_left)
 		if ostat == False: break
 	
 	# close input and output files
@@ -137,7 +115,7 @@ def main():
 			
 	# grab file names
 	fpath_wav_in = 'joy.wav'
-	fpath_wav_out = 'joy_no_change.wav'
+	fpath_wav_out = 'joy_short2_echo_FIR.wav'
 	
 	
 	
