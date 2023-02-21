@@ -51,7 +51,7 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 	###############################################################
 	###############################################################
 	# students - allocate your fifo, with an appropriate length (M)
-	M = 2000				# length 3 is not appropriate!
+	M = 7000				# length 3 is not appropriate!
 	#6757 samples to cover 4 seconds
 	fifo = my_fifo(M)
  
@@ -73,7 +73,7 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 		
 		fifo.update(xin)
 
-		yout_left = 0.5*fifo.get(1) + 0.5*fifo.get(1998)
+		yout_left = 0.5*fifo.get(1) + 0.5*fifo.get(6999)
 		
 		
 		# students - well done!
