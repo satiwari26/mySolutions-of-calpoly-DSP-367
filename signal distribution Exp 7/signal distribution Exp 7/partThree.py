@@ -73,28 +73,79 @@ def compute_mag(xin):
 			xk[l] = xk[l] + xin[k]*(math.cos(2*math.pi*l*k/8000) - 1j*math.sin(2*math.pi*l*k/8000))
 
 	xp = []
-	for u in range(4000):
+	for u in range(2000):
 		xp.append(0)
 	
-	for q in range(4000):
-		xp[q] = xk[q]/4000
+	for q in range(2000):
+		xp[q] = xk[q]/2000
 		                          
 	magnitude = np.abs(xp)
+	max_mag =0
+	max_freq = 0
+	
+	#max peak of the wav file#
+	# for p in range(4000):
+	# 	if(max_mag<magnitude[p]):
+	# 		max_mag = magnitude[p]
+	# 		max_freq = p
+	# print('Peak-mag: '+str(max_mag))
+	# print('max_freq: '+str(max_freq))
+
+	#Second_mag(magnitude,max_mag)
 	plot_spectrum(magnitude)
 	return magnitude
 
+def Second_mag(xk,max_mag):
+	right_mag = []
+	#right_freq = []
+	for k in range(4000):
+		right_mag.append(0)
+		#right_freq.append(0)
+	for s in range(4000):
+		if(xk[s]>=(max_mag/2)):
+			right_mag[s] = xk[s]
+			#right_freq[s] = s
+	calculate_f(right_mag)
+    #plot_spectrum(right_mag)
+
+
+
+###########calculating f_zero value############
+def calculate_f(right_mag):
+	sum_freq_mag =0
+	sum_mag = 0
+	#f_zero =0
+	for p in range(4000):
+		if(right_mag !=0):
+			sum_freq_mag = sum_freq_mag+(p*right_mag[p])
+			sum_mag = sum_mag+right_mag[p]
+	
+	f_zero = (sum_freq_mag)/(sum_mag)
+	print('weighted-average: '+str(f_zero))
+	calc_air_gap(f_zero)
+	
+
+def calc_air_gap(f_zero):
+	length = 343/(2*f_zero)
+	length_inch = length*39.3701
+	print('length in meter: '+ str(length))
+	print('length in inches: '+ str(length_inch))
+
+
+###############code for my plot############
+
 def plot_spectrum(xk):
 	x_comp = []
-	for p in range(4000):
+	for p in range(2000):
 		x_comp.append(0)
 
-	for t in range(4000):
+	for t in range(2000):
 		#print(t)
 		x_comp[t] = t
 
 	fig, ax = plt.subplots() 
 	ax.plot(x_comp, xk) 
-	ax.set(xlabel='Frequency (Hz)', ylabel='Counts', title='Cool Plot! ') 
+	ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='tile 1A ') 
 	ax.grid() 
  
 	fig.savefig('image_file.png') 
@@ -117,7 +168,7 @@ def main():
 		return False
 			
 	# grab file names
-	fpath_wav_in = 'cos_1khz_pulse_20msec.wav'
+	fpath_wav_in = 'tile1a.wav'
 	#fpath_wav_out = 'joy_short2_echo_FIR.wav'
 	
 	

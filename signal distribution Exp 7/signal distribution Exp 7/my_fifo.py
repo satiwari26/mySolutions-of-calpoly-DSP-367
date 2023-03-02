@@ -39,7 +39,7 @@ class my_fifo:
 		
 		#self.buff[0] = current_in
 
-		for p in range(1,self.buff_len):
+		for p in range(self.buff_len):
 			self.temp1[p] = self.buff[p-1]
 		
 		for t in range(self.buff_len):
