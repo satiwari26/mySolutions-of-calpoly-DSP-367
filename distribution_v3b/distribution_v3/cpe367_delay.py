@@ -12,12 +12,16 @@ import time
 from cpe367_wav import cpe367_wav
 from my_fifo import my_fifo
 
+import matplotlib.pyplot as plt 
+import numpy as np
+import math
+
 
 	
 ############################################
 ############################################
 # define routine for implementing a digital filter
-def process_wav(fpath_wav_in,fpath_wav_out):
+def process_wav(fpath_wav_in):
 	"""
 	: this example does not implement an echo!
 	: input and output is accomplished via WAV files
@@ -27,7 +31,7 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 	# construct objects for reading/writing WAV files
 	#  assign each object a name, to facilitate status and error reporting
 	wav_in = cpe367_wav('wav_in',fpath_wav_in)
-	wav_out = cpe367_wav('wav_out',fpath_wav_out)
+	#wav_out = cpe367_wav('wav_out',fpath_wav_out)
 	
 	# open wave input file
 	ostat = wav_in.open_wav_in()
@@ -36,66 +40,65 @@ def process_wav(fpath_wav_in,fpath_wav_out):
 		return False
 		
 	# setup configuration for output WAV
-	num_channels = 1
-	sample_width_8_16_bits = 16
-	sample_rate_hz = 16000
-	wav_out.set_wav_out_configuration(num_channels,sample_width_8_16_bits,sample_rate_hz)
 	
+	#wav_out.set_wav_out_configuration(num_channels,sample_width_8_16_bits,sample_rate_hz)
 
-	# open WAV output file
-	ostat = wav_out.open_wav_out()
-	if ostat == False:
-		print('Cant open wav file for writing')
-		return False
-	
-	###############################################################
-	###############################################################
-	# students - allocate your fifo, with an appropriate length (M)
-	M = 7000				# length 3 is not appropriate!
-	#6757 samples to cover 4 seconds
-	fifo = my_fifo(M)
- 
-	# students - allocate filter coefficients as needed, length (M)
-	# students - these are not the correct filter coefficients
-	
-	#bk_list_left = [0,1,2,3,4,5,6,7,8]
-	#bk_list_right =[8,7,6,5,4,3,2,1,0]
+	xin =[]
+	xk =[]
+	for i in range(4000):
+		xin.append(0)
+		xk.append(0)
+	#xin stores the 4000 elements of the wave file
 
-	xin =0
+	for i in range(4000):
+		xin[i] = wav_in.read_wav()
 
-	###############################################################
-	###############################################################	
-	# process entire input signal
-	while xin != None:
-		# read next sample (assumes mono WAV file)
-		#  returns None when file is exhausted
-		xin = wav_in.read_wav()
-		
-		fifo.update(xin)
+	xk = compute_mag(xin)
 
-		yout_left = 0.5*fifo.get(1) + 0.5*fifo.get(6999)
-		
-		
-		# students - well done!
-		###############################################################
-		###############################################################
+	#for s in range(4000):
+		#print(xk[s])
 
-
-		# convert to signed int
-		yout_left = int(round(yout_left))
-		#yout_right = int(round(yout_right))
-		
-		# output current sample
-		ostat = wav_out.write_wav(yout_left)
-		if ostat == False: break
-	
-	# close input and output files
-	#  important to close output file - header is updated (with proper file size)
 	wav_in.close_wav()
-	wav_out.close_wav()
-		
-	return True
 
+	return True
+		
+def compute_mag(xin):
+	xk =[]
+	for i in range(4000):
+		#xin.append(0)
+		xk.append(0)
+
+	for l in range(4000):
+		for k in range(4000):
+			xk[l] = xk[l] + xin[k]*(math.cos(2*math.pi*l*k/8000) - 1j*math.sin(2*math.pi*l*k/8000))
+
+	xp = []
+	for u in range(4000):
+		xp.append(0)
+	
+	for q in range(4000):
+		xp[q] = xk[q]/4000
+		                          
+	magnitude = np.abs(xp)
+	plot_spectrum(magnitude)
+	return magnitude
+
+def plot_spectrum(xk):
+	x_comp = []
+	for p in range(4000):
+		x_comp.append(0)
+
+	for t in range(4000):
+		#print(t)
+		x_comp[t] = t
+
+	fig, ax = plt.subplots() 
+	ax.plot(x_comp, xk) 
+	ax.set(xlabel='Frequency (Hz)', ylabel='Counts', title='Cool Plot! ') 
+	ax.grid() 
+ 
+	fig.savefig('image_file.png') 
+	plt.show() 
 
 
 
@@ -114,8 +117,8 @@ def main():
 		return False
 			
 	# grab file names
-	fpath_wav_in = 'joy.wav'
-	fpath_wav_out = 'joy_short2_echo_FIR.wav'
+	fpath_wav_in = 'cos_1khz_pulse_20msec.wav'
+	#fpath_wav_out = 'joy_short2_echo_FIR.wav'
 	
 	
 	
@@ -125,19 +128,19 @@ def main():
 	#  feel free to comment this out, after verifying
 		
 	# allocate history
-	M = 4
-	fifo = my_fifo(M)
+	#M = 4
+	#fifo = my_fifo(M)
 
 	# add some values to history
-	fifo.update(1)
-	fifo.update(2)
-	fifo.update(3)
-	fifo.update(4)
+	#fifo.update(1)
+	#fifo.update(2)
+	#fifo.update(3)
+	#fifo.update(4)
 	
 	# print out history in order from most recent to oldest
-	print('signal history - test')
-	for k in range(M):
-		print('hist['+str(k)+']='+str(fifo.get(k)))
+	#print('signal history - test')
+	#for k in range(M):
+	#	print('hist['+str(k)+']='+str(fifo.get(k)))
 
 	############################################
 	############################################
@@ -145,7 +148,7 @@ def main():
 
 
 	# let's do it!
-	return process_wav(fpath_wav_in,fpath_wav_out)
+	return process_wav(fpath_wav_in)
 	
 			
 	

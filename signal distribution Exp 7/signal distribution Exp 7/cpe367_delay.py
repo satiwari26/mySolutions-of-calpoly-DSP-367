@@ -68,6 +68,7 @@ def compute_mag(xin):
 		#xin.append(0)
 		xk.append(0)
 
+	#computing the DTF of my input wave
 	for l in range(4000):
 		for k in range(4000):
 			xk[l] = xk[l] + xin[k]*(math.cos(2*math.pi*l*k/8000) - 1j*math.sin(2*math.pi*l*k/8000))
@@ -78,7 +79,8 @@ def compute_mag(xin):
 	
 	for q in range(4000):
 		xp[q] = xk[q]/4000
-		                          
+
+	#computing the magnitude of the DFT array.		                          
 	magnitude = np.abs(xp)
 	plot_spectrum(magnitude)
 	return magnitude
@@ -94,7 +96,7 @@ def plot_spectrum(xk):
 
 	fig, ax = plt.subplots() 
 	ax.plot(x_comp, xk) 
-	ax.set(xlabel='Frequency (Hz)', ylabel='Counts', title='Cool Plot! ') 
+	ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='cos_1khz_pulse_20msec ') 
 	ax.grid() 
  
 	fig.savefig('image_file.png') 

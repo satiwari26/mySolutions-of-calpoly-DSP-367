@@ -145,7 +145,7 @@ def plot_spectrum(xk):
 
 	fig, ax = plt.subplots() 
 	ax.plot(x_comp, xk) 
-	ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='tile 1A ') 
+	ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='tile 2E ') 
 	ax.grid() 
  
 	fig.savefig('image_file.png') 
@@ -168,7 +168,7 @@ def main():
 		return False
 			
 	# grab file names
-	fpath_wav_in = 'tile1a.wav'
+	fpath_wav_in = 'tile2e.wav'
 	#fpath_wav_out = 'joy_short2_echo_FIR.wav'
 	
 	
