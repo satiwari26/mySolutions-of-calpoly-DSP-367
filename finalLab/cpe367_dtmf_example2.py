@@ -21,8 +21,10 @@ from my_fifo import my_fifo
 
 #global list to store the dft input signals
 #creating yout to store the new signal after running it through the filter
-yout1 = [0]
-yout2 = [0]
+yout1 = []
+yout2 = []
+yout3 = []
+yout4 = []
 
 ############################################
 ############################################
@@ -43,7 +45,7 @@ def process_wav(fpath_sig_in):
 	s2.load(fpath_sig_in)
 	s2.print_desc()
 	
-	
+	symbol_val_det = 0
 
 
 	#initialize buffer sample
@@ -52,33 +54,66 @@ def process_wav(fpath_sig_in):
 		bufferSamp.append(0)
 	
 	sampleCount =0
+	ncountReset =0 # find the peak in 20 samples times this will give us the index of where it is happening in the s2.length
+
+	maxIndex1 =0
+	maxIndex2 =0
+	maxIndex3 = 0
+	maxIndex4 = 0
+	index1336 = 0
+	index1209= 0
+	index697 = 0
+	index770 = 0
 	# process input	
 	xin = 0
 	for n_curr in range(s2.get_len()):
 		
 		# read next input sample from the signal analyzer
 		xin = s2.get('xin',n_curr)
+		#s2.set('sig_1',n_curr,xin)
+		#symbol_val_det = 5
 
-		
-		if (sampleCount ==19):
-			bandPassSig(bufferSamp,1209,yout1)
-			bandPassSig(bufferSamp,697,yout2) #call the filter function
+		if (sampleCount ==9):
+			maxIndex1 = bandPassSig(bufferSamp,1209,yout1)
+			maxIndex2 = bandPassSig(bufferSamp,697,yout2) #call the filter function
+			maxIndex3 = bandPassSig(bufferSamp,1336,yout3)
+			maxIndex4 = bandPassSig(bufferSamp,770,yout4)
 			sampleCount=0
+
+			#print('reset count '+str(ncountReset))
+			
+			index1209 = index1209+10+maxIndex1 
+			index697 = index697+10+maxIndex2
+			index1336 = index1336+10+maxIndex3
+			index770 = index770+10+maxIndex4
+
+			print(str(index1209)+ " index1209")
+			print(str(index697)+ " index697")
+			print(str(index1336)+ " index1336")
 		else:
 			sampleCount = sampleCount+1
 			bufferSamp[sampleCount] = xin
+
 		########################
 		# students: evaluate each filter and implement other processing blocks
 
 		#split it into different function to perform the buffere operation
 
-		
+		#print(str(index1209)+ " index1209")
+		#print(str(index697)+ " index697")
+		#print(str(index1336)+ " index1336")
+
+
+		if(np.abs(index1209-index1336) <=5):
+			symbol_val_det = 2
+		if(np.abs(index1209-index697) <=5):
+			symbol_val_det  = 1
 		########################
 		# students: combine results from filtering stages
 		#  and find (best guess of) symbol that is present at this sample time
 		
 		
-		#symbol_val_det = 0
+
 
 		# save intermediate signals as needed, for plotting
 		#  add signals, as desired!
@@ -88,7 +123,7 @@ def process_wav(fpath_sig_in):
 		#s2.set('sig_2',n_curr,2 * xin)
 
 		# save detected symbol
-		#s2.set('symbol_det',n_curr,symbol_val_det)
+		s2.set('symbol_det',n_curr,symbol_val_det)
 
 		# get correct symbol (provided within the signal analyzer)
 		#symbol_val = s2.get('symbol_val',n_curr)
@@ -107,12 +142,12 @@ def process_wav(fpath_sig_in):
 		#plotting mag of dft after filtering it
 		s2.set('sig_2',t,yout1[t])
 
-		s2.set('sig_1',t,yout2[t])
+		s2.set('sig_1',t,yout3[t])
 
 		symbol_val_det = 0
 
 		# save detected symbol
-		s2.set('symbol_det',t,symbol_val_det)
+		#s2.set('symbol_det',t,symbol_val_det)
 
 		# get correct symbol (provided within the signal analyzer)
 		symbol_val = s2.get('symbol_val',t)
@@ -139,11 +174,12 @@ def process_wav(fpath_sig_in):
 #filter operation on the signal with certain buffer length
 def bandPassSig(bufferSample,freq,youtG):
 	#fifo class that will have the same length
+	maxindex =0
 	fifo1 = my_fifo(3)
 	
 	#initialize buff to store the ybuff_out
 	yBuff = []
-	for s in range(20):
+	for s in range(10):
 		yBuff.append(0)
 
 	# students: setup filters
@@ -153,22 +189,25 @@ def bandPassSig(bufferSample,freq,youtG):
 	a2 = r1*r1
 
 	#apply filter and update the samples
-	for i in range(20):
-		yBuff[i] = b0*bufferSample[i] + (-2*r1*np.cos(2*np.pi*freq/20))*fifo1.get(0) + a2*fifo1.get(1)
+	for i in range(10):
+		yBuff[i] = b0*bufferSample[i] + (-2*r1*np.cos(2*np.pi*freq/4000))*fifo1.get(0) + a2*fifo1.get(1)
 		fifo1.update(yBuff[i])
+	maxIndex = dftMag(yBuff,youtG)
 
-	dftMag(yBuff,youtG)
+	return maxIndex
 
 
 
 #dft of the signal after applying filter to it
 def dftMag(yout,youtG):
 	xk = []
-	for s in range(20):
+	maxVal = 0
+	maxIndex =0
+	for s in range(10):
 		xk.append(0.0)
 	
-	for l in range(20):
-		for k in range(20):
+	for l in range(10):
+		for k in range(10):
 			xk[l] = xk[l] + yout[k]*(np.cos((2*np.pi*l*k/(20)) - (1j*np.sin(2*np.pi*l*k/20))))
 
 	#absolute value of the dft
@@ -177,11 +216,19 @@ def dftMag(yout,youtG):
 	#global val storer func
 	globalValStorer(dftMag1,youtG)
 
+	for t in range(len(dftMag1)): #find the max peak and its index
+		if(dftMag1[t]>maxVal):
+			maxVal = dftMag1[t]
+			maxIndex = t
+			#print(str(maxVal)+' '+str(maxIndex))
+	#print('returning max index' + str(maxIndex))
+	return maxIndex
+
 	
 
 def globalValStorer(dftMag1,yout):
 	#store it in the global variable
-	for t in range(20):
+	for t in range(10):
 		yout.append(dftMag1[t])
 	
 	
