@@ -98,6 +98,7 @@ def process_wav(fpath_sig_in):
 
 	# process input	
 	xin = 0
+	count =0
 	for n_curr in range(s2.get_len()):
 		
 		# read next input sample from the signal analyzer
@@ -125,7 +126,7 @@ def process_wav(fpath_sig_in):
 
 		
 		#peak_env697[n_curr] = np.max( np.abs(y697[]))/1024
-		peak_env(s2,y697)
+		
 
 		s2.set('sig_1209',n_curr,y1209[n_curr])
 		s2.set('sig_1336',n_curr,y1336[n_curr])
@@ -133,9 +134,17 @@ def process_wav(fpath_sig_in):
 		s2.set('sig_697',n_curr,y697[n_curr])
 		s2.set('sig_770',n_curr,y770[n_curr])
 		s2.set('sig_852',n_curr,y852[n_curr])
-		s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
+		#s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
 
-
+		#if((y1209[n_curr])>16 and (y697[n_curr])>16):
+		#	symbol_val_det = 1
+		#elif((y1209[n_curr])>16 and (y770[n_curr])>16):
+		#	symbol_val_det = 4
+		#elif((y1336[n_curr])>16 and (y697[n_curr])>16):
+		#	symbol_val_det = 2
+		#elif((y1336[n_curr])>16 and (y770[n_curr])>16):
+		#	symbol_val_det = 5
+		
 		# save intermediate signals as needed, for plotting
 		#  add signals, as desired!
 
@@ -155,15 +164,46 @@ def process_wav(fpath_sig_in):
 		
 		# save error signal
 		#s2.set('error',n_curr,symbol_val_err)
-
-	#dftMag(y852,s2)	
 	
-	#absolute value of the dft
+	envolopeDet(y697,peak_env697,s2)
+	envolopeDet(y770,peak_env770,s2)
+	envolopeDet(y1209,peak_env1209,s2)
+	envolopeDet(y1336,peak_env1336,s2)
 
-	#for t in range(s2.get_len()):
+	for c in range(s2.get_len()):
+		if(peak_env1209[c]>30 and peak_env697[c]>30):
+			symbol_val_det = 1
+		elif(peak_env1209[c]>30 and peak_env770[c]>30):
+			symbol_val_det = 4
+		elif(peak_env1336[c]>30 and peak_env697[c]>30):
+			symbol_val_det = 2
+		elif(peak_env1336[c]>30 and peak_env770[c]>30):
+			symbol_val_det = 5
+		#else:
+		#	symbol_val_det = 0
+
+		#setting detected symbol value
+		s2.set('symbol_det',c,symbol_val_det)
+		#setting correct symbol value
+		symbol_val = s2.get('symbol_val',c)
+		s2.set('symbol_val',c,symbol_val)
+		# compare detected signal to correct signal
+		symbol_val_err = 0
+		if symbol_val != symbol_val_det: symbol_val_err = 1
+		
+		# save error signal
+		s2.set('error',c,symbol_val_err)
+
+	# display mean of error signal
+	err_mean = s2.get_mean('error')
+	print('mean error = '+str( round(100 * err_mean,1) )+'%')
+
+	for t in range(s2.get_len()):
 		#plotting mag of dft after filtering it
-		#s2.set('sig_2',t,envelopeSig[t])
-
+		s2.set('envolope_697',t,peak_env697[t])
+		s2.set('envolope_770',t,peak_env770[t])
+		s2.set('envolope_1209',t,peak_env1209[t])
+		s2.set('envolope_1336',t,peak_env1336[t])
 		#s2.set('sig_1209',t,yout2[t])
 
 		#symbol_val_det = 0
@@ -172,8 +212,6 @@ def process_wav(fpath_sig_in):
 		#s2.set('symbol_det',t,symbol_val_det)
 
 		# get correct symbol (provided within the signal analyzer)
-		#symbol_val = s2.get('symbol_val',t)
-
 		# compare detected signal to correct signal
 		#symbol_val_err = 0
 		#if symbol_val != symbol_val_det: symbol_val_err = 1
@@ -187,7 +225,8 @@ def process_wav(fpath_sig_in):
 		
 	# define which signals should be plotted
 	#plot_sig_list = ['sig_1','sig_2','symbol_val','symbol_det','error']
-	plot_sig_list = ['sig_1209','sig_1336','sig_1477','sig_697','sig_770','sig_852','peak_envolp 697']
+	#plot_sig_list = ['sig_1209','sig_1336','sig_1477','sig_697','sig_770','sig_852','envolope_697','symbol_val']
+	plot_sig_list = ['envolope_770','envolope_1209','envolope_1336','envolope_697','symbol_val','symbol_det','error']
 	
 	# plot results
 	s2.plot(plot_sig_list)
@@ -195,16 +234,15 @@ def process_wav(fpath_sig_in):
 	return True
 
 
+def envolopeDet(yin,peakEnvo,s2):
 
-def peak_env(s2,y697):
-	#absolute = np.abs(y697)
-
-	for i in range(s2.get_len()-1024):
-		maxVal = np.max( np.abs(y697[i:i+1024]))/1024
-
-		for k in range(i,i+1024):
-			peak_env697[k] = maxVal
-		i = i+1024
+	#finding max value in chucks of the value
+	for p in range(0,s2.get_len(),10):
+		chunk = yin[p:p+10]
+		maxVal = max(np.abs(chunk))
+		for j in range(len(chunk)):
+			chunk[j] = maxVal
+		peakEnvo[p:p+10] = chunk
 
 
 #dft of the signal after applying filter to it
@@ -219,37 +257,39 @@ def dftMag(yout,s2):
 
 	#absolute value of the dft
 	dftMag1 = np.abs(xk)
+
+	return(dftMag1)
 	#dftMag2 =[]
 	#for s in range(2000):
 	#	dftMag2.append(0)
 
-	x_comp = []
-	for t in range(s2.get_len()):
+	#x_comp = []
+	#for t in range(s2.get_len()):
 		#print(t)
-		x_comp.append(t)
+	#	x_comp.append(t)
 
 	#for k in range(2000):
 	#	dftMag2[k] = dftMag1[k]
 
-	exact_freq = 0
-	freq_mag = 0
-	mag = 0
+	#exact_freq = 0
+	#freq_mag = 0
+	#mag = 0
 
-	for p in range(s2.get_len()):
-		freq_mag = freq_mag+(p*dftMag1[p])
-		mag = mag+(dftMag1[p])
+	#for p in range(s2.get_len()):
+	#	freq_mag = freq_mag+(p*dftMag1[p])
+	#	mag = mag+(dftMag1[p])
 	
-	exact_freq = freq_mag/mag
+	#exact_freq = freq_mag/mag
 
-	print("weighted frequency is: " + str(exact_freq))
+	#print("weighted frequency is: " + str(exact_freq))
 
-	fig, ax = plt.subplots() 
-	ax.plot(x_comp, dftMag1) 
-	ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='tile 2E ') 
-	ax.grid() 
+	#fig, ax = plt.subplots() 
+	#ax.plot(x_comp, dftMag1) 
+	#ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude', title='tile 2E ') 
+	#ax.grid() 
  
-	fig.savefig('image_file.png') 
-	plt.show() 
+	#fig.savefig('image_file.png') 
+	#plt.show() 
 	
 	
 	
@@ -267,7 +307,7 @@ def main():
 		return False
 		
 	# assign file name
-	fpath_sig_in = 'dtmf_signals_slow.txt'
+	fpath_sig_in = 'dtmf_signals_fast.txt'
 	# fpath_sig_in = 'dtmf_signals_fast.txt'
 	
 	
