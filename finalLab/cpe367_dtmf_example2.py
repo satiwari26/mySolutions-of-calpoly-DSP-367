@@ -23,10 +23,12 @@ from my_fifo import my_fifo
 #creating yout to store the new signal after running it through the filter
 peak_env697 = []
 peak_env770 = []
-peak_env852 = []
+#peak_env852 = []
 peak_env1209 = []
 peak_env1336 = []
-peak_env1477 = []
+#peak_env1477 = []
+#peak_env1633 = []
+#peak_env941 = []
 
 
 
@@ -63,10 +65,12 @@ def process_wav(fpath_sig_in):
 	for k in range(s2.get_len()):
 		peak_env697.append(0)
 		peak_env770.append(0)
-		peak_env852.append(0)
+		#peak_env852.append(0)
 		peak_env1209.append(0)
 		peak_env1336.append(0)
-		peak_env1477.append(0)
+		#peak_env1477.append(0)
+		#peak_env1633.append(0)
+		#peak_env941.append(0)
 
 	r1 = 0.9
 	b0 = 1-r1
@@ -75,26 +79,31 @@ def process_wav(fpath_sig_in):
 
 	fifo1209 = my_fifo(3)
 	fifo1336 = my_fifo(3)
-	fifo1477 = my_fifo(3)
+	#fifo1477 = my_fifo(3)
 	fifo697 = my_fifo(3)
 	fifo770 = my_fifo(3)
-	fifo852 = my_fifo(3)
+	#fifo852 = my_fifo(3)
+	#fifo1633 = my_fifo(3)
+	#fifo941 = my_fifo(3)
+
 
 	y1209 = []
 	y1336 = []
-	y1477 = []
+	#y1477 = []
+	#y1633 = []
 
 	y697 = []
 	y770 = []
-	y852 = []
+	#y852 = []
+	#y941 = []
 	for i in range(s2.get_len()):
 		y1209.append(0)
 		y1336.append(0)
-		y1477.append(0)
+		#y1477.append(0)
 
 		y697.append(0)
 		y770.append(0)
-		y852.append(0)
+		#y852.append(0)
 
 	# process input	
 	xin = 0
@@ -109,20 +118,25 @@ def process_wav(fpath_sig_in):
 		#8 different filter operations
 		y1209[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*1209/4000))*fifo1209.get(0) - a2*fifo1209.get(1)
 		y1336[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*1336/4000))*fifo1336.get(0) - a2*fifo1336.get(1)
-		y1477[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*1477/4000))*fifo1477.get(0) - a2*fifo1477.get(1)
+		#y1477[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*1477/4000))*fifo1477.get(0) - a2*fifo1477.get(1)
+		#y1633[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*1633/4000))*fifo1477.get(0) - a2*fifo1477.get(1)
 
 		y697[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*697/4000))*fifo697.get(0) - a2*fifo697.get(1)
 		y770[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*770/4000))*fifo770.get(0) - a2*fifo770.get(1)
-		y852[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*852/4000))*fifo852.get(0) - a2*fifo852.get(1)
+		#y852[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*852/4000))*fifo852.get(0) - a2*fifo852.get(1)
+		#y941[n_curr] = b0*xin + (2*r1*np.cos(2*np.pi*941/4000))*fifo1477.get(0) - a2*fifo1477.get(1)
+
 
 		#updating all the filter operation
 		fifo1209.update(y1209[n_curr])
 		fifo1336.update(y1336[n_curr])
-		fifo1477.update(y1477[n_curr])
+		#fifo1477.update(y1477[n_curr])
+		#fifo1633.update(y1477[n_curr])
 
 		fifo697.update(y697[n_curr])
 		fifo770.update(y770[n_curr])
-		fifo852.update(y852[n_curr])
+		#fifo852.update(y852[n_curr])
+		#fifo941.update(y852[n_curr])
 
 		
 		#peak_env697[n_curr] = np.max( np.abs(y697[]))/1024
@@ -130,10 +144,10 @@ def process_wav(fpath_sig_in):
 
 		s2.set('sig_1209',n_curr,y1209[n_curr])
 		s2.set('sig_1336',n_curr,y1336[n_curr])
-		s2.set('sig_1477',n_curr,y1477[n_curr])
+		#s2.set('sig_1477',n_curr,y1477[n_curr])
 		s2.set('sig_697',n_curr,y697[n_curr])
 		s2.set('sig_770',n_curr,y770[n_curr])
-		s2.set('sig_852',n_curr,y852[n_curr])
+		#s2.set('sig_852',n_curr,y852[n_curr])
 		#s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
 
 		#if((y1209[n_curr])>16 and (y697[n_curr])>16):
@@ -169,16 +183,23 @@ def process_wav(fpath_sig_in):
 	envolopeDet(y770,peak_env770,s2)
 	envolopeDet(y1209,peak_env1209,s2)
 	envolopeDet(y1336,peak_env1336,s2)
+	#envolopeDet(y1477,peak_env1477,s2)
+	#envolopeDet(y1633,peak_env1633,s2)
+	#envolopeDet(y852,peak_env852,s2)
+	#envolopeDet(y941,peak_env941,s2)
 
 	for c in range(s2.get_len()):
 		if(peak_env1209[c]>30 and peak_env697[c]>30):
 			symbol_val_det = 1
 		elif(peak_env1209[c]>30 and peak_env770[c]>30):
 			symbol_val_det = 4
+		#elif(peak_env1209[c]>30 and peak_env852[c]>30):
+			#symbol_val_det = 7
 		elif(peak_env1336[c]>30 and peak_env697[c]>30):
 			symbol_val_det = 2
 		elif(peak_env1336[c]>30 and peak_env770[c]>30):
 			symbol_val_det = 5
+			
 		#else:
 		#	symbol_val_det = 0
 
@@ -307,7 +328,7 @@ def main():
 		return False
 		
 	# assign file name
-	fpath_sig_in = 'dtmf_signals_fast.txt'
+	fpath_sig_in = 'dtmf_signals_slow.txt'
 	# fpath_sig_in = 'dtmf_signals_fast.txt'
 	
 	
