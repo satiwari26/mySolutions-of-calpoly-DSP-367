@@ -53,33 +53,6 @@ def process_wav(fpath_sig_in):
 	
 	symbol_val_det = 0
 
-	#############coefficient calc ######### 
-	r1 = 0.9
-	b0 = 1-r1
-	intb0 = round(1024*b0)
-	#freq =0
-	a2 = r1*r1
-	inta2 = round(1024*a2)
-	#coefficient values
-	a1209 = (2*r1*np.cos(2*np.pi*1209/4000))
-	inta1209 = round(1024*a1209)
-	a1336 = (2*r1*np.cos(2*np.pi*1336/4000))
-	inta1336 = round(1024*a1336)
-	a1477 = (2*r1*np.cos(2*np.pi*1477/4000))
-	inta1477 = round(1024*a1477)
-	a1633 = (2*r1*np.cos(2*np.pi*1633/4000))
-	inta1633 = round(1024*a1633)
-	a697 = (2*r1*np.cos(2*np.pi*697/4000))
-	inta697 = round(1024*a697)
-	a770 = (2*r1*np.cos(2*np.pi*770/4000))
-	inta770 = round(1024*a770)
-	a852 = (2*r1*np.cos(2*np.pi*852/4000))
-	inta852 = round(1024*a852)
-	a941 = (2*r1*np.cos(2*np.pi*941/4000))
-	inta941 = round(1024*a941)
-
-	
-	##########coefficient calc#############
 
 	#initialize buffer sample
 	bufferSamp = []
@@ -101,27 +74,8 @@ def process_wav(fpath_sig_in):
 
 	r1 = 0.9
 	b0 = 1-r1
-	intb0 = round(1024*b0)
 	#freq =0
 	a2 = r1*r1
-	inta2 = round(1024*a2)
-	#coefficient values
-	a1209 = (2*r1*np.cos(2*np.pi*1209/4000))
-	inta1209 = round(1024*a1209)
-	a1336 = (2*r1*np.cos(2*np.pi*1336/4000))
-	inta1336 = round(1024*a1336)
-	a1477 = (2*r1*np.cos(2*np.pi*1477/4000))
-	inta1477 = round(1024*a1477)
-	a1633 = (2*r1*np.cos(2*np.pi*1633/4000))
-	inta1633 = round(1024*a1633)
-	a697 = (2*r1*np.cos(2*np.pi*697/4000))
-	inta697 = round(1024*a697)
-	a770 = (2*r1*np.cos(2*np.pi*770/4000))
-	inta770 = round(1024*a770)
-	a852 = (2*r1*np.cos(2*np.pi*852/4000))
-	inta852 = round(1024*a852)
-	a941 = (2*r1*np.cos(2*np.pi*941/4000))
-	inta941 = round(1024*a941)
 
 	fifo1209 = my_fifo(3)
 	fifo1336 = my_fifo(3)
@@ -188,13 +142,13 @@ def process_wav(fpath_sig_in):
 		#peak_env697[n_curr] = np.max( np.abs(y697[]))/1024
 		
 
-		s2.set('sig_1209',n_curr,y1209[n_curr])
-		s2.set('sig_1336',n_curr,y1336[n_curr])
-		#s2.set('sig_1477',n_curr,y1477[n_curr])
-		s2.set('sig_697',n_curr,y697[n_curr])
-		s2.set('sig_770',n_curr,y770[n_curr])
-		#s2.set('sig_852',n_curr,y852[n_curr])
-		#s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
+		# s2.set('sig_1209',n_curr,y1209[n_curr])
+		# s2.set('sig_1336',n_curr,y1336[n_curr])
+		# #s2.set('sig_1477',n_curr,y1477[n_curr])
+		# s2.set('sig_697',n_curr,y697[n_curr])
+		# s2.set('sig_770',n_curr,y770[n_curr])
+		# #s2.set('sig_852',n_curr,y852[n_curr])
+		# #s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
 
 		#if((y1209[n_curr])>16 and (y697[n_curr])>16):
 		#	symbol_val_det = 1
@@ -245,8 +199,9 @@ def process_wav(fpath_sig_in):
 			symbol_val_det = 2
 		elif(peak_env1336[c]>30 and peak_env770[c]>30):
 			symbol_val_det = 5
-		else:
-			symbol_val_det = 0
+			
+		#else:
+		#	symbol_val_det = 0
 
 		#setting detected symbol value
 		s2.set('symbol_det',c,symbol_val_det)
@@ -373,7 +328,7 @@ def main():
 		return False
 		
 	# assign file name
-	fpath_sig_in = 'dtmf_signals_fast.txt'
+	fpath_sig_in = 'dtmf_signals_slow.txt'
 	# fpath_sig_in = 'dtmf_signals_fast.txt'
 	
 	
