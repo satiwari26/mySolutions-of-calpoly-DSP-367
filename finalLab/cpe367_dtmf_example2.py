@@ -78,7 +78,9 @@ def process_wav(fpath_sig_in):
 	a941 = (2*r1*np.cos(2*np.pi*941/4000))
 	inta941 = round(1024*a941)
 
-	
+	print(a852)
+	print(inta852)
+
 	##########coefficient calc#############
 
 	#initialize buffer sample
@@ -193,37 +195,6 @@ def process_wav(fpath_sig_in):
 		#s2.set('sig_1477',n_curr,y1477[n_curr])
 		s2.set('sig_697',n_curr,y697[n_curr])
 		s2.set('sig_770',n_curr,y770[n_curr])
-		#s2.set('sig_852',n_curr,y852[n_curr])
-		#s2.set('peak_envolp 697',n_curr,peak_env697[n_curr])
-
-		#if((y1209[n_curr])>16 and (y697[n_curr])>16):
-		#	symbol_val_det = 1
-		#elif((y1209[n_curr])>16 and (y770[n_curr])>16):
-		#	symbol_val_det = 4
-		#elif((y1336[n_curr])>16 and (y697[n_curr])>16):
-		#	symbol_val_det = 2
-		#elif((y1336[n_curr])>16 and (y770[n_curr])>16):
-		#	symbol_val_det = 5
-		
-		# save intermediate signals as needed, for plotting
-		#  add signals, as desired!
-
-		#s2.set('607 frequency',n_curr,xin)
-		
-		#s2.set('sig_2',n_curr,2 * xin)
-
-		# save detected symbol
-		#s2.set('symbol_det',n_curr,symbol_val_det)
-
-		# get correct symbol (provided within the signal analyzer)
-		#symbol_val = s2.get('symbol_val',n_curr)
-
-		# compare detected signal to correct signal
-		#symbol_val_err = 0
-		#if symbol_val != symbol_val_det: symbol_val_err = 1
-		
-		# save error signal
-		#s2.set('error',n_curr,symbol_val_err)
 	
 	envolopeDet(y697,peak_env697,s2)
 	envolopeDet(y770,peak_env770,s2)
@@ -270,28 +241,7 @@ def process_wav(fpath_sig_in):
 		s2.set('envolope_770',t,peak_env770[t])
 		s2.set('envolope_1209',t,peak_env1209[t])
 		s2.set('envolope_1336',t,peak_env1336[t])
-		#s2.set('sig_1209',t,yout2[t])
-
-		#symbol_val_det = 0
-
-		# save detected symbol
-		#s2.set('symbol_det',t,symbol_val_det)
-
-		# get correct symbol (provided within the signal analyzer)
-		# compare detected signal to correct signal
-		#symbol_val_err = 0
-		#if symbol_val != symbol_val_det: symbol_val_err = 1
-		
-		# save error signal
-		#s2.set('error',t,symbol_val_err)
 	
-	# display mean of error signal
-	#err_mean = s2.get_mean('error')
-	#print('mean error = '+str( round(100 * err_mean,1) )+'%')
-		
-	# define which signals should be plotted
-	#plot_sig_list = ['sig_1','sig_2','symbol_val','symbol_det','error']
-	#plot_sig_list = ['sig_1209','sig_1336','sig_1477','sig_697','sig_770','sig_852','envolope_697','symbol_val']
 	plot_sig_list = ['envolope_770','envolope_1209','envolope_1336','envolope_697','symbol_val','symbol_det','error']
 	
 	# plot results
