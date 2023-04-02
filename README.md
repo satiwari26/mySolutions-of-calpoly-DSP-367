@@ -2,7 +2,7 @@
 
 Digital Signal Processing (DSP) refers to the use of digital processing techniques to manipulate and analyze signals. DSP involves the use of mathematical algorithms to analyze, filter, and transform these signals.
 
-## Final Project- DTMF
+## Final Project- DTMF(Dual tone multi frequency)
 
 The final project was centered around the application of Dual Tone Multi Frequency (DTMF). 
 
